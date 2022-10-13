@@ -1,8 +1,14 @@
 import React from 'react';
+import { useState } from 'react';
+//import confetti from 'canvas-confetti';
+
+
 import { Layout } from '../../components/layouts/Layout';
 import type { GetStaticProps,GetStaticPaths, NextPage } from 'next';
 import { pokeApi } from '../../api';
 import { Pokemon } from '../../interfaces';
+import { localFavorites } from '../../utils';
+
 import { Button, Card, Container, Grid, Image, Text } from '@nextui-org/react';
 
 
@@ -11,8 +17,28 @@ interface Props {
 }
 
 const PokemonPage: NextPage<Props> = ({pokemon}) => {
-    return(
-        <Layout title='Algun Pokemon'>
+    const [isInFavorites, setIsInFavorites] = useState( localFavorites.existInFavorites( pokemon.id ) );
+
+    const onToggleFavorite = () => {
+      localFavorites.toggleFavorite( pokemon.id );
+      setIsInFavorites( !isInFavorites );
+
+      if ( isInFavorites ) return;
+        
+    //   confetti({
+    //     zIndex: 999,
+    //     particleCount: 100,
+    //     spread: 160,
+    //     angle: -100,
+    //     origin: {
+    //       x: 1,
+    //       y: 0,
+    //     }
+    //   })
+
+    }  
+    return( 
+        <Layout title={pokemon.name}>
             <Grid.Container css={{marginTop: '5px'}} gap={2}>
                 <Grid xs={12} sm={4}>
                     <Card isPressable css={{padding: '30px'}}>
@@ -30,7 +56,9 @@ const PokemonPage: NextPage<Props> = ({pokemon}) => {
                     <Card>
                         <Card.Header css={{display: 'flex', justifyContent: 'space-between'}}>
                             <Text h1 transform='capitalize'> {pokemon.name}</Text>
-                            <Button color="gradient" ghost> Guardan en favoritos</Button>
+                            <Button color="gradient" ghost={ !isInFavorites } onClick={ onToggleFavorite }> 
+                            { isInFavorites ? 'En Favoritos' : 'Guardar en favoritos' }
+                            </Button>
                         </Card.Header>
                         <Card.Body>
                             <Text size={30}>Sprites:</Text>
